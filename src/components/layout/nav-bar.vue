@@ -1,6 +1,6 @@
 <template>
     <div class="nav-bar">
-        <headerButton :image="cate" label="" :size="58" @click="goHome()" />
+        <headerButton :image="cate" label="" :size="58" @click="goLoginPage()" />
         <headerButton :image="voca" label="" :size="58" @click="goHome()" />
         <headerButton :image="user" label="" :size="58" @click="goHome()" />
     </div>
@@ -15,7 +15,7 @@ import user from '@/assets/icons/user.png';
 
 
 const router = useRouter();
-function goHome() {
+function goLoginPage() {
     router.push('/login');
 }
 </script>
