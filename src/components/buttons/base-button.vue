@@ -1,7 +1,7 @@
 <template lang="">
-    <div class="base-button" @click="onClick">
+    <el-button type="primary" class="base-button" @click="onClick">
         <slot />
-    </div>
+    </el-button>
 </template>
 <script setup>
 const emit = defineEmits(['click']);

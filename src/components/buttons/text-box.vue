@@ -1,24 +1,25 @@
 <template lang="">
     <div class>
         <label v-if="label">{{label}}</label>
-        <input :type="type" :placeholder="placeholder" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />
+        <el-input :type="type" :placeholder="placeholder" v-model="value"  />
     </div>
 </template>
 <script setup>
-defineProps({
+import { computed } from 'vue';
+
+const props = defineProps({
     modelValue: String,
     label: String,
     placeholder: String,
     type: { type: String, default: 'text' }
-}
-);
+});
+
+const emit = defineEmits(['update:modelValue']);
+
+const value = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val)
+});
+
 </script>
-<style scoped>
-    .text-box input{
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
-    }
-    
-</style>
+<style scoped></style>

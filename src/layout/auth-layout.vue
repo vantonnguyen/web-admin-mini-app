@@ -5,9 +5,9 @@
         </div>
 
         <div class="body">
-            <div class="nav-bar">
-                <!-- <navBar /> -->
-            </div>
+            <!-- <div class="nav-bar">
+                <navBar />
+            </div> -->
             <div class="content">
                 <slot></slot>
             </div>
@@ -29,6 +29,7 @@ import navBar from '@/components/layout/nav-bar.vue';
     height: 100vh;
     width: 100%;
     box-sizing: border-box;
+    background-color: aliceblue;
 }
 
 .header-wrapper {
@@ -49,5 +50,11 @@ import navBar from '@/components/layout/nav-bar.vue';
 
 .footer-wrapper {
     width: 100%;
+}
+
+.content {
+    flex: 1;
+    padding: 16px;
+    
 }
 </style>
