@@ -1,22 +1,22 @@
 <template>
-    <div class="main-layout">
+    <div class="auth-layout">
         <div class="header-wrapper">
-            <headerSection />
+            <!-- <headerSection /> -->
         </div>
 
         <div class="body">
             <div class="nav-bar">
-                <navBar />
+                <!-- <navBar /> -->
             </div>
             <div class="content">
-
+                <slot></slot>
             </div>
 
         </div>
 
-        <div class="footer-wrapper">
+        <!-- <div class="footer-wrapper">
             <headerSection />
-        </div>
+        </div> -->
     </div>
 </template>
 <script setup>
@@ -25,7 +25,7 @@ import footerSection from '@/components/layout/footer-section.vue';
 import navBar from '@/components/layout/nav-bar.vue';
 </script>
 <style scoped>
-.main-layout {
+.auth-layout {
     height: 100vh;
     width: 100%;
     box-sizing: border-box;
