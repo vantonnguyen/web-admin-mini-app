@@ -1,6 +1,14 @@
 <template>
     <div class="home">
-        <h1>Welcome to the Home Page</h1>
-        <p>This is the main landing page of the application.</p>
+        <mainLayout />
     </div>
 </template> 
+<script setup>
+import mainLayout from '@/layout/main-layout.vue';
+</script>
+<style scoped>
+.home {
+    width: 100%;
+    height: 100%;
+}
+</style>
