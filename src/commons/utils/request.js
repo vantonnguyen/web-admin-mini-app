@@ -3,10 +3,12 @@ const baseURL = import.meta.env.VITE_BASE_API;
 
 axios.defaults.headers["Content-Type"] = "application/json;charset=utf-8";
 const service = axios.create({
-  baseURL: baseURL, //VITE_BASE_API=https://n904dv9q-3000.asse.devtunnels.ms/api
+  baseURL: baseURL, //VITE_BASE_API=http://localhost:3000/api
   timeout: 300000, //300 giây (5 phút)
-  withCredentials: true, // ⚠️ Cho phép gửi cookie connect.sid
+  // withCredentials: true, // ⚠️ Cho phép gửi cookie connect.sid
+  withCredentials: true,
 });
+
 
 // Interceptor xử lý response
 service.interceptors.response.use(

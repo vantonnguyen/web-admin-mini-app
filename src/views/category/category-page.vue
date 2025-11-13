@@ -6,7 +6,8 @@
             </div>
             <div class="toolbar">
                 <!-- Input tìm kiếm -->
-                <el-input v-model="search" size="small" placeholder="Tìm kiếm" style="width: 180px; height: 30px;" clearable>
+                <el-input v-model="search" size="small" placeholder="Tìm kiếm" style="width: 180px; height: 30px;"
+                    clearable>
                     <template #prefix>
                         <el-icon style="font-size: 22px;">
                             <Search />
@@ -14,7 +15,7 @@
                     </template>
                 </el-input>
                 <!-- Nút thêm mới -->
-                <el-button type="primary" icon="el-icon-plus" @click="handleDialogCreateOrEditCategory">
+                <el-button type="primary" icon="el-icon-plus" @click="handleAddCategory">
                     Thêm mới
                 </el-button>
                 <!-- Nút xuất excel -->
@@ -82,7 +83,7 @@
                 </el-table-column>
                 <el-table-column align="right" label="Thao tác">
                     <template #default="scope">
-                        <el-button type="primary" :icon="Edit" @click="handleEdit(scope.$index, scope.row)">
+                        <el-button type="primary" :icon="Edit" @click="handleUpdate(scope.$index, scope.row)">
                             Edit
                         </el-button>
                         <el-button type="danger" :icon="Delete" circle @click="handleDelete(scope.$index, scope.row)" />
@@ -91,24 +92,20 @@
             </el-table>
         </div>
     </div>
-    <DialogCreateOrEditCategory 
-    v-model:dialogVisible="dialogVisible"
-    :form="form"
-    :rules="rules"
-    :formLoading="formLoading"
-    @submit="handleSubmitCategory"
-    />
+    <DialogCreateOrEditCategory v-model:dialogVisible="dialogVisible" :form="form" :rules="rules" :mode="mode"
+        :form-loading="formLoading" @onSuccess="handleGetCategory" />
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, onMounted } from 'vue'
-import { getCategories } from '@/api/category.js';
+import { listCategory, deleteCategory } from '@/api/category.js';
 import {
     Delete,
     Edit,
     Search,
 } from '@element-plus/icons-vue'
 import DialogCreateOrEditCategory from './dialog-create-or-edit-category.vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 interface Category {
     id: number;
@@ -126,8 +123,13 @@ const categories = ref<Category[]>([]);
 const search = ref('')
 const loading = ref(true)
 
+onMounted(() => {
+    fetchCategories();
+    loading.value = false;
+});
+
 function fetchCategories() {
-    getCategories()
+    listCategory()
         .then((res) => {
             console.log('Categories fetched:', res);
             // Xử lý dữ liệu response 
@@ -156,10 +158,7 @@ function fetchCategories() {
         })
 }
 
-onMounted(() => {
-    fetchCategories();
-    loading.value = false;
-});
+
 
 const filterTableData = computed(() =>
     categories.value.filter(
@@ -173,33 +172,8 @@ const filterTableData = computed(() =>
     )
 )
 
-const handleEdit = (index: number, row: Category) => {
-    console.log(index, row)
-}
-
-const handleDelete = (index: number, row: Category) => {
-    console.log(index, row)
-}
-
-const dialogVisible = ref(false);
 const form = ref({
-  key: '',
-  label: '',
-  color: '',
-  japanese: '',
-  kana: '',
-  romaji: '',
-  display_order: 1
-});
-const rules = ref({
-  key: [{ required: true, message: 'Vui lòng nhập mã danh mục', trigger: 'blur' }],
-  label: [{ required: true, message: 'Vui lòng nhập tên danh mục', trigger: 'blur' }],
-  // Thêm các rules khác nếu cần
-});
-const formLoading = ref(false);
-const handleDialogCreateOrEditCategory = () => {
-    console.log('Open dialog to create or edit category');
-    form.value = {
+    id: '',
     key: '',
     label: '',
     color: '',
@@ -207,16 +181,82 @@ const handleDialogCreateOrEditCategory = () => {
     kana: '',
     romaji: '',
     display_order: 1
-  };
+});
+const rules = ref({
+    key: [{ required: true, message: 'Vui lòng nhập mã danh mục', trigger: 'blur' }],
+    label: [{ required: true, message: 'Vui lòng nhập tên danh mục', trigger: 'blur' }],
+    // Thêm các rules khác nếu cần
+});
+
+const mode = ref<'add' | 'update'>('add');
+
+
+const formLoading = ref(false);
+const handleGetCategory = (formData) => {
+    // Xử lý lưu dữ liệu (gọi API, validate, v.v.)
+    console.log('Form submitted with data:', formData);
+    formLoading.value = true;
+    // Sau khi xong:
+    fetchCategories();
+    dialogVisible.value = false;
+    formLoading.value = false;
+};
+
+
+
+const dialogVisible = ref(false);
+const handleAddCategory = () => {
+    console.log('Open dialog to create or edit category');
+    form.value = {
+        id: '',
+        key: '',
+        label: '',
+        color: '',
+        japanese: '',
+        kana: '',
+        romaji: '',
+        display_order: 1
+    };
     dialogVisible.value = true;
 }
 
-const handleSubmitCategory = (formData) => {
-  // Xử lý lưu dữ liệu (gọi API, validate, v.v.)
-  // Sau khi xong:
-  dialogVisible.value = false;
-};
+const handleUpdate = (index: number, row: Category) => {
+    console.log(index, row)
+    Object.assign(form.value, row);
+    mode.value = 'update';
+    dialogVisible.value = true;
+}
 
+const handleDelete = (index: number, row: Category) => {
+    console.log(index, row);
+    ElMessageBox.confirm(
+        `Bạn có chắc chắn muốn xóa danh mục "${row.label}" không?`,
+        'Xác nhận xóa',
+        {
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy',
+            type: 'warning',
+        }
+    ).then(() => {
+        deleteCategory(row.key)
+            .then(() => {
+                console.log('Category deleted:', row.key);
+                // Cập nhật lại danh sách sau khi xóa
+                fetchCategories();
+                ElMessage.success('Đã xóa thành công!');
+            })
+            .catch((error) => {
+                console.error('Error deleting category:', error);
+                ElMessage.error('Xóa thất bại!');
+            });
+    }
+    ).catch(() => {
+        console.log('Delete canceled');
+        ElMessage.info('Đã hủy xóa');
+
+    });
+
+};
 
 
 </script>
@@ -226,13 +266,15 @@ const handleSubmitCategory = (formData) => {
     height: 100%;
     padding: 10px;
 }
+
 .title {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-    border-bottom:2px solid #efecec;
+    border-bottom: 2px solid #efecec;
 }
+
 .toolbar {
     display: flex;
     align-items: center;
