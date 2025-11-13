@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import mainLayout from "@/layout/main-layout.vue";
 import Home from "@/views/home/home.vue";
 import LoginPage from "@/views/login/login-page.vue";
+import CategoryPage from "@/views/category/category-page.vue";
 
 const routes = [
   {
@@ -13,12 +14,27 @@ const routes = [
         name: "Home",
         component: Home,
       },
+      {
+        path: "/categories",
+        name: "Category Page",
+        component: CategoryPage,
+      },
+      {
+        path: "",
+        name: "Home",
+        component: Home,
+      },
+      {
+        path: "",
+        name: "Home",
+        component: Home,
+      },
     ],
   },
   {
     path: "/login",
     name: "Login",
-    component: () => import("@/views/login/login-page.vue"),
+    component: LoginPage,
   },
 ];
 

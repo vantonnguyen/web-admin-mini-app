@@ -42,7 +42,10 @@ import navBar from '@/components/layout/nav-bar.vue';
     width: 100%;
     margin-top: 10px;
 }
-
+.content {
+    flex: 1;
+    padding: 16px;
+}
 .nav-bar {
     max-width: 250px;
 }

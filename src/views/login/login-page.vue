@@ -7,7 +7,9 @@
                     <textBox label="Tên đăng nhập" placeholder="Nhập tên đăng nhập của bạn" v-model="username" />
                 </div>
                 <div class="item">
-                    <textBox label="Mật khẩu" placeholder="Nhập mật khẩu của bạn" type="password" v-model="password" />
+                    <label for="password">Mật khẩu</label>
+                    <el-input v-model="password" style="width: 280px" type="password" placeholder="Nhập mật khẩu của bạn"
+                        show-password />
                 </div>
                 <div class="item">
                     <baseButton @click="handleLogin" class="login-button">Đăng nhập</baseButton>
@@ -24,26 +26,39 @@ import textBox from '@/components/buttons/text-box.vue';
 import baseButton from '@/components/buttons/base-button.vue';
 import { login } from '@/api/auth.js';
 import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 
 const username = ref('');
+
 const password = ref('');
+const showPassword = ref(false);
 
 const router = useRouter();
-const handleLogin = async () => {
-    try {
-        const response = await login(username.value, password.value);
-        if (response) {
-            console.log('Đăng nhập thành công:', response);
-            alert('Đăng nhập thành công', response);
-            localStorage.setItem('user', JSON.stringify(response)); // Lưu thông tin user (bao gồm role)
-            router.push('/');
-        } else {
-            alert('Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại!');
-        }
-    } catch (error) {
-        alert('Lỗi đăng nhập: ' + error);
-        console.error('Lỗi đăng nhập:', error);
+const handleLogin = () => {
+    // Validate frontend
+    // Validate frontend: chỉ kiểm tra đã nhập hay chưa
+    if (!username.value || !username.value.trim()) {
+        ElMessage.warning('Vui lòng nhập tên đăng nhập!');
+        return;
     }
+    if (!password.value || !password.value.trim()) {
+        ElMessage.warning('Vui lòng nhập mật khẩu!');
+        return;
+    }
+    login(username.value, password.value)
+        .then((response) => {
+            if (response) {
+                ElMessage.success('Đăng nhập thành công');
+                localStorage.setItem('user', JSON.stringify(response));
+                router.push('/');
+            } else {
+                ElMessage.error('Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại!');
+            }
+        })
+        .catch((error) => {
+            ElMessage.error('Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại sau!');
+            console.error('Lỗi đăng nhập:', error);
+        });
 };
 </script>
 <style scoped>
