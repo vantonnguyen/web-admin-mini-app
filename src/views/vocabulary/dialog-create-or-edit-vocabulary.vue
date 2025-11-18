@@ -1,39 +1,36 @@
 <template>
-    <el-dialog :title="form.key ? `Chỉnh sửa chủ đề: ${form.label}` : 'Thêm chủ đề từ vựng mới'" v-model="dialogVisible" width="30%">
+    <el-dialog :title="form.id ? `Chỉnh sửa từ vựng: ${form.kanji}` : 'Thêm từ vựng mới'" v-model="dialogVisible" width="40%">
         <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
-            <el-form-item label="Mã danh mục" prop="key" :rules="mode === 'update' ? [] : undefined">
-                <el-input v-model="form.key" autocomplete="off" style="width: 240px" placeholder="Nhập mã danh mục"
-                    :disabled="mode === 'update'" />
-            </el-form-item>
-            <el-form-item label="Tên danh mục" prop="label">
-                <el-input v-model="form.label" autocomplete="off" style="width: 240px"
-                    placeholder="Nhập tên danh mục" />
-            </el-form-item>
-            <el-form-item label="Màu" prop="color">
-                <div class="demo-color-block">
-                    <el-color-picker v-model="form.color" />
-                </div>
-            </el-form-item>
-            <el-form-item label="Tiếng Nhật" prop="japanese">
-                <el-input v-model="form.japanese" autocomplete="off" style="width: 240px"
-                    placeholder="Nhập tiếng Nhật" />
+            <el-form-item label="Kanji" prop="kanji">
+                <el-input v-model="form.kanji" autocomplete="off" style="width: 240px" placeholder="Nhập Kanji" />
             </el-form-item>
             <el-form-item label="Kana" prop="kana">
-                <el-input v-model="form.kana" autocomplete="off" style="width: 240px" placeholder="Nhập kana" />
+                <el-input v-model="form.kana" autocomplete="off" style="width: 240px" placeholder="Nhập Kana" />
             </el-form-item>
             <el-form-item label="Romaji" prop="romaji">
-                <el-input v-model="form.romaji" autocomplete="off" style="width: 240px" placeholder="Nhập romaji" />
+                <el-input v-model="form.romaji" autocomplete="off" style="width: 240px" placeholder="Nhập Romaji" />
             </el-form-item>
-            <el-form-item label="Thứ tự hiển thị" prop="display_order">
-                <el-input v-model.number="form.display_order" autocomplete="off" type="number" style="width: 240px"
-                    placeholder="Nhập thứ tự hiển thị" />
+            <el-form-item label="Nghĩa" prop="meaning">
+                <el-input v-model="form.meaning" autocomplete="off" style="width: 240px" placeholder="Nhập Nghĩa" />
             </el-form-item>
+            <el-form-item label="JLPT Level" prop="jlpt_level">
+                <el-input v-model="form.jlpt_level" autocomplete="off" style="width: 240px" placeholder="Nhập JLPT Level" />
+            </el-form-item>
+            <el-form-item label="Link Audio" prop="audio_url">
+                <el-input v-model="form.audio_url" autocomplete="off" style="width: 240px" placeholder="Nhập Link Audio" />
+            </el-form-item>
+            <el-form-item label="Ví dụ" prop="example">
+                <el-input v-model="form.example" autocomplete="off" style="width: 240px" placeholder="Nhập Ví dụ" />
+            </el-form-item>
+            <el-form-item label="Link Image" prop="image_url">
+                <el-input v-model="form.image_url" autocomplete="off" style="width: 240px" placeholder="Nhập Link Image" />
+            </el-form-item>
+        
         </el-form>
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="dialogVisible = false">Hủy</el-button>
-                <el-button type="primary" @click="submitForm" :loading="formLoading"
-                    :disabled="mode === 'update' && !isDirty">Xác nhận</el-button>
+                <el-button type="primary" @click="submitForm" :loading="formLoading" :disabled="mode === 'update' && !isDirty">Xác nhận</el-button>
             </span>
         </template>
     </el-dialog>
@@ -41,7 +38,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { addCategory, updateCategory } from '@/api/category.js';
+import { addVocabulary, updateVocabulary } from '@/api/vocabulary.js';
 
 const props = defineProps({
     dialogVisible: Boolean,
@@ -80,30 +77,30 @@ const isDirty = computed(() => {
 const submitForm = () => {
     formRef.value.validate((valid) => {
         if (valid) {
-            const action = props.mode === 'add' ? addCategory : updateCategory;
+            const action = props.mode === 'add' ? addVocabulary : updateVocabulary;
             if (props.mode === 'add') {
-                addCategory(props.form)
+                addVocabulary(props.form)
                     .then((res) => {
                         emit('onSuccess', props.form);
                         ElMessage.success('Đã thêm thành công!');
                         dialogVisible.value = false;
-                        console.log('Category added:', res);
+                        console.log('Vocabulary added:', res);
                     })
                     .catch((err) => {
                         if (err && err.message && err.message.includes('409')) {
-                            ElMessage.error('Mã danh mục đã tồn tại, vui lòng nhập mã khác!');
+                            ElMessage.error('Từ vựng đã tồn tại, vui lòng nhập từ khác!');
                         } else {
-                            ElMessage.error('Có lỗi khi thêm danh mục!');
+                            ElMessage.error('Có lỗi khi thêm từ vựng!');
                         }
                     });
 
             } else {
-                updateCategory(props.form.key, props.form)
+                updateVocabulary(props.form.id, props.form)
                     .then((res) => {
                         emit('onSuccess', props.form);
                         ElMessage.success('Đã cập nhật thành công!');
                         dialogVisible.value = false;
-                        console.log('Category updated:', res);
+                        console.log('Vocabulary updated:', res);
                     })
                     .catch(() => {
                         ElMessage.error('Có lỗi khi cập nhật!');

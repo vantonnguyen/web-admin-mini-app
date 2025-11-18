@@ -31,12 +31,9 @@ import { ElMessage } from 'element-plus';
 const username = ref('');
 
 const password = ref('');
-const showPassword = ref(false);
 
 const router = useRouter();
 const handleLogin = () => {
-    // Validate frontend
-    // Validate frontend: chỉ kiểm tra đã nhập hay chưa
     if (!username.value || !username.value.trim()) {
         ElMessage.warning('Vui lòng nhập tên đăng nhập!');
         return;
@@ -46,10 +43,10 @@ const handleLogin = () => {
         return;
     }
     login(username.value, password.value)
-        .then((response) => {
-            if (response) {
+        .then((res) => {
+            if (res) {
                 ElMessage.success('Đăng nhập thành công');
-                localStorage.setItem('user', JSON.stringify(response));
+                localStorage.setItem('user', JSON.stringify(res.data));
                 router.push('/');
             } else {
                 ElMessage.error('Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại!');

@@ -2,7 +2,7 @@
     <div class="header">
         <headerButton image="/logo.png" label="" :size="50" @click="goHome()" class="logo" />
         <headerButton :image="cate" label="Chủ đề từ vựng" :size="20" @click="goCategoryPage()" />
-        <headerButton :image="voca" label="Danh sách từ vựng" :size="20" @click="goHome()" />
+        <headerButton :image="voca" label="Danh sách từ vựng" :size="20" @click="goVocabularyPage()" />
         <headerButton :image="user" label="Quản lý người dùng" :size="20" @click="goHome()" />
     </div>
 
@@ -21,6 +21,9 @@ function goHome() {
 }
 function goCategoryPage() {
     router.push('/categories');
+}
+function goVocabularyPage() {
+    router.push('/vocabularies');
 }
 </script>
 <style scoped>

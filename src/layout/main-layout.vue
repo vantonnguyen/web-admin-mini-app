@@ -14,9 +14,9 @@
 
         </div>
 
-        <div class="footer-wrapper">
+        <!-- <div class="footer-wrapper">
             <headerSection />
-        </div>
+        </div> -->
     </div>
 </template>
 <script setup>

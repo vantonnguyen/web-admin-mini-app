@@ -3,6 +3,7 @@ import mainLayout from "@/layout/main-layout.vue";
 import Home from "@/views/home/home.vue";
 import LoginPage from "@/views/login/login-page.vue";
 import CategoryPage from "@/views/category/category-page.vue";
+import VocubularyPage from "@/views/vocabulary/vocubulary-page.vue";
 
 const routes = [
   {
@@ -20,9 +21,9 @@ const routes = [
         component: CategoryPage,
       },
       {
-        path: "",
-        name: "Home",
-        component: Home,
+        path: "/vocabularies",
+        name: "Vocabulary Page",
+        component: VocubularyPage,
       },
       {
         path: "",

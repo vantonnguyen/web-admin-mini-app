@@ -1,14 +1,25 @@
 import service from "@/commons/utils/request";
 
+/**
+ * @typedef {Object} ListCategoryResponse
+ * @property {Array} data - Danh sách category
+ * @property {number} total - Tổng số category
+ */
+
 const prefix = "categories";
 
 
-export function listCategory() {
+/**
+ * Lấy danh sách category có phân trang
+ * @param {Object} params
+ * @returns {Promise<ListCategoryResponse>}
+ */
+export function listCategory(params = {}) {
   return service
-    .get(`/${prefix}`)
+    .get(`/${prefix}`, { params })
     .then((res) => res)
-    .catch((err) => {
-      console.error("Lỗi lấy danh sách categories:", err);
+    .catch(() => {
+      console.error("Lỗi lấy danh sách categories:");
       throw err;
     });
 }
