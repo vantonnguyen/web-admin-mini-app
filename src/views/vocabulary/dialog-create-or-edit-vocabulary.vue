@@ -1,5 +1,6 @@
 <template>
-    <el-dialog :title="form.id ? `Chỉnh sửa từ vựng: ${form.kanji}` : 'Thêm từ vựng mới'" v-model="dialogVisible" width="40%">
+    <el-dialog :title="form.id ? `Chỉnh sửa từ vựng: ${form.kanji}` : 'Thêm từ vựng mới'" v-model="dialogVisible"
+        width="40%">
         <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
             <el-form-item label="Kanji" prop="kanji">
                 <el-input v-model="form.kanji" autocomplete="off" style="width: 240px" placeholder="Nhập Kanji" />
@@ -13,37 +14,43 @@
             <el-form-item label="Nghĩa" prop="meaning">
                 <el-input v-model="form.meaning" autocomplete="off" style="width: 240px" placeholder="Nhập Nghĩa" />
             </el-form-item>
-            <el-form-item label="JLPT Level" prop="jlpt_level">
-                <el-input v-model="form.jlpt_level" autocomplete="off" style="width: 240px" placeholder="Nhập JLPT Level" />
-            </el-form-item>
             <el-form-item label="Link Audio" prop="audio_url">
-                <el-input v-model="form.audio_url" autocomplete="off" style="width: 240px" placeholder="Nhập Link Audio" />
+                <el-input v-model="form.audio_url" autocomplete="off" style="width: 300px"
+                    placeholder="Nhập Link Audio" />
+                <div v-if="form.audio_url" style="margin-left: 10px;">
+                    <audio :src="form.audio_url" controls
+                        style="width: 120px; height: 38px; transform: scale(0.85); transform-origin: left;"></audio>
+                </div>
             </el-form-item>
             <el-form-item label="Ví dụ" prop="example">
-                <el-input v-model="form.example" autocomplete="off" style="width: 240px" placeholder="Nhập Ví dụ" />
+                <el-input v-model="form.example" autocomplete="off" style="width: 440px" placeholder="Nhập Ví dụ" />
             </el-form-item>
             <el-form-item label="Link Image" prop="image_url">
-                <el-input v-model="form.image_url" autocomplete="off" style="width: 240px" placeholder="Nhập Link Image" />
+                <el-input v-model="form.image_url" autocomplete="off" style="width: 440px"
+                    placeholder="Nhập Link Image" />
             </el-form-item>
-        
+            <div v-if="form.image_url" style="margin-top: 10px; text-align: center;">
+                <img :src="form.image_url" alt="preview"
+                    style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;" />
+            </div>
         </el-form>
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="dialogVisible = false">Hủy</el-button>
-                <el-button type="primary" @click="submitForm" :loading="formLoading" :disabled="mode === 'update' && !isDirty">Xác nhận</el-button>
+                <el-button type="primary" @click="submitForm" :loading="formLoading"
+                    :disabled="mode === 'update' && !isDirty">Xác nhận</el-button>
             </span>
         </template>
     </el-dialog>
 </template>
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, reactive, ref, watch, nextTick } from 'vue';
 import { ElMessage } from 'element-plus';
 import { addVocabulary, updateVocabulary } from '@/api/vocabulary.js';
 
 const props = defineProps({
     dialogVisible: Boolean,
     form: Object,
-    rules: Object,
     formLoading: Boolean,
     mode: String,
     title: String
@@ -62,6 +69,11 @@ const originalForm = ref({});
 watch(() => props.dialogVisible, (val) => {
     if (val && props.mode === 'update') {
         originalForm.value = { ...props.form };
+    }
+    if (!val) {
+        nextTick(() => {
+            formRef.value?.clearValidate();
+        });
     }
 });
 const isDirty = computed(() => {
@@ -112,5 +124,12 @@ const submitForm = () => {
         }
     });
 };
+
+const rules = reactive({
+    kanji: [{ required: false, message: 'Vui lòng nhập Kanji (có thể có hoặc không)', trigger: 'blur' }],
+    kana: [{ required: true, message: 'Vui lòng nhập Kana ( hiragana hoặc katakana )', trigger: 'blur' }],
+    romaji: [{ required: true, message: 'Vui lòng nhập Romaji', trigger: 'blur' }],
+    meaning: [{ required: true, message: 'Vui lòng nhập Nghĩa', trigger: 'blur' }],
+});
 </script>
 <style scoped></style>

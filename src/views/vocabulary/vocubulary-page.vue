@@ -82,13 +82,13 @@
                 @size-change="fetchVocabularies" />
         </div>
     </div>
-    <DialogCreateOrEditVocabulary v-model:dialogVisible="dialogVisible" :form="form" :rules="rules" :mode="mode"
+    <DialogCreateOrEditVocabulary v-model:dialogVisible="dialogVisible" :form="form"  :mode="mode"
         :form-loading="formLoading" @onSuccess="handleGetVocabulary" />
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, onMounted } from 'vue'
-import { listVocabulary, deleteVocabulary }  from '@/api/vocabulary.js';
+import { listVocabulary, deleteVocabulary } from '@/api/vocabulary.js';
 import {
     Delete,
     Edit,
@@ -177,12 +177,6 @@ const form = ref({
     example: '',
     image_url: '',
     category_key: '',
-});
-const rules = ref({
-    kanji: [{ required: true, message: 'Vui lòng nhập Kanji', trigger: 'blur' }],
-    kana: [{ required: true, message: 'Vui lòng nhập Kana', trigger: 'blur' }],
-    romaji: [{ required: true, message: 'Vui lòng nhập Romaji', trigger: 'blur' }],
-    meaning: [{ required: true, message: 'Vui lòng nhập Nghĩa', trigger: 'blur' }],
 });
 
 const mode = ref<'add' | 'update'>('add');
