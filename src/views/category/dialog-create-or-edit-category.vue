@@ -66,6 +66,11 @@ watch(() => props.dialogVisible, (val) => {
     if (val && props.mode === 'update') {
         originalForm.value = { ...props.form };
     }
+    if (!val) {
+        nextTick(() => {
+            formRef.value?.clearValidate();
+        });
+    }
 });
 const isDirty = computed(() => {
     if (props.mode !== 'update') return true;
