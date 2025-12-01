@@ -8,9 +8,9 @@
                 <el-input v-model="search" size="small" placeholder="Tìm kiếm" style="width: 180px; height: 30px;"
                     clearable>
                 </el-input>
-        
+
                 <div style="width: 40px;"></div>
-                <el-button type="primary" icon="el-icon-plus" @click="openAdd">
+                <el-button type="primary" icon="el-icon-plus" @click="add">
                     <el-icon>
                         <Plus />
                     </el-icon> Thêm mới
@@ -19,7 +19,7 @@
         </div>
 
         <div class="container-item">
-            <el-table v-loading="loading" :data="filterTableData" @row-click="(row) => openEdit(undefined, row)"
+            <el-table v-loading="loading" :data="filteredList"  @row-click="(row) => edit(row.key)"
                 style="width: 100%">
                 <el-table-column label="STT" width="60">
                     <template #default="scope">
@@ -70,7 +70,7 @@
                 <el-table-column align="right" label="Thao tác">
                     <template #default="scope">
                         <el-button type="primary" :icon="Edit"
-                            @click.stop="openEdit(scope.$index, scope.row)"></el-button>
+                            @click.stop="edit(scope.row.key)"></el-button>
                         <el-button type="danger" :icon="Delete" circle
                             @click.stop="handleDelete(scope.$index, scope.row)" />
                     </template>
@@ -83,40 +83,35 @@
                 @size-change="fetchCategories" />
         </div>
     </div>
-    <DialogCreateOrEditCategory v-model:dialogVisible="dialogVisible" :form="form" :rules="rules" :mode="mode"
-        :form-loading="formLoading" @onSuccess="handleGetCategory" />
+    <DialogCreateOrEditCategory ref="dialogForSubmit" @on-success="handleGetCategory" />
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, provide } from 'vue'
 import { listCategory, deleteCategory } from '@/api/category.js';
 import {
     Delete,
     Edit,
-    Search,
 } from '@element-plus/icons-vue'
 import DialogCreateOrEditCategory from './dialog-create-or-edit-category.vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 
-interface Category {
-    id: number;
-    key: string;
-    label: string;
-    color?: string;
-    japanese?: string;
-    kana?: string;
-    romaji?: string;
-    display_order?: number;
-    [key: string]: any;
-}
-
-const categories = ref<Category[]>([]);
 const search = ref('')
 const loading = ref(true)
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
+const listData = ref([]);
+const dialogForSubmit = ref(null);
+
+const submitForm = ref({
+    title: "",
+    id: null,
+    open: false,
+});
+
+provide("submitForm", submitForm);
 
 onMounted(() => {
     fetchCategories();
@@ -128,16 +123,7 @@ function fetchCategories() {
         .then((res) => {
             console.log('Categories fetched:', res.data);
             if (res && Array.isArray(res.data)) {
-                categories.value = res.data.map((item: any) => ({
-                    id: item.id,
-                    key: item.key,
-                    label: item.label,
-                    color: item.color,
-                    japanese: item.japanese,
-                    kana: item.kana,
-                    romaji: item.romaji,
-                    display_order: item.display_order,
-                }));
+                listData.value = res.data.map(item => ({ ...item }));
                 total.value = res.total || 0;
             } else {
                 console.error('Invalid response format for categories:', res);
@@ -151,74 +137,17 @@ function fetchCategories() {
         })
 }
 
-
-
-const filterTableData = computed(() =>
-    categories.value.filter(
-        (data) =>
-            !search.value ||
-            data.label.toLowerCase().includes(search.value.toLowerCase()) ||
-            data.key.toLowerCase().includes(search.value.toLowerCase()) ||
-            (data.japanese && data.japanese.toLowerCase().includes(search.value.toLowerCase())) ||
-            (data.kana && data.kana.toLowerCase().includes(search.value.toLowerCase())) ||
-            (data.romaji && data.romaji.toLowerCase().includes(search.value.toLowerCase()))
-    )
-)
-
-const form = ref({
-    id: '',
-    key: '',
-    label: '',
-    color: '',
-    japanese: '',
-    kana: '',
-    romaji: '',
-    display_order: 1
-});
-const rules = ref({
-    key: [{ required: true, message: 'Vui lòng nhập mã danh mục', trigger: 'blur' }],
-    label: [{ required: true, message: 'Vui lòng nhập tên danh mục', trigger: 'blur' }],
-});
-
-const mode = ref<'add' | 'update'>('add');
-
-
-const formLoading = ref(false);
-const handleGetCategory = (formData) => {
-    console.log('Form submitted with data:', formData);
-    formLoading.value = true;
+const handleGetCategory = () => {
     fetchCategories();
-    dialogVisible.value = false;
-    formLoading.value = false;
 };
 
-
-
-const dialogVisible = ref(false);
-const openAdd = () => {
-    console.log('Open dialog to create or edit category');
-    form.value = {
-        id: '',
-        key: '',
-        label: '',
-        color: '',
-        japanese: '',
-        kana: '',
-        romaji: '',
-        display_order: 1
-    };
-    mode.value = 'add';
-    dialogVisible.value = true;
-}
-
-const openEdit = (index: number, row: Category) => {
-    console.log(index, row)
-    Object.assign(form.value, row);
-    mode.value = 'update';
-    dialogVisible.value = true;
-}
-
-const handleDelete = (index: number, row: Category) => {
+const add = () => {
+    dialogForSubmit.value.showDialog(null);
+};
+const edit = (key) => {
+    dialogForSubmit.value.showDialog(key);
+};
+const handleDelete = (index: number, row) => {
     console.log(index, row);
     ElMessageBox.confirm(
         `Bạn có chắc chắn muốn xóa danh mục "${row.label}" không?`,
@@ -232,7 +161,6 @@ const handleDelete = (index: number, row: Category) => {
         deleteCategory(row.key)
             .then(() => {
                 console.log('Category deleted:', row.key);
-                // Cập nhật lại danh sách sau khi xóa
                 fetchCategories();
                 ElMessage.success('Đã xóa thành công!');
             })
@@ -246,6 +174,18 @@ const handleDelete = (index: number, row: Category) => {
         ElMessage.info('Đã hủy xóa');
     });
 };
+
+const filteredList = computed(() =>
+    listData.value.filter(
+        (data) =>
+            !search.value ||
+            data.label.toLowerCase().includes(search.value.toLowerCase()) ||
+            data.key.toLowerCase().includes(search.value.toLowerCase()) ||
+            (data.japanese && data.japanese.toLowerCase().includes(search.value.toLowerCase())) ||
+            (data.kana && data.kana.toLowerCase().includes(search.value.toLowerCase())) ||
+            (data.romaji && data.romaji.toLowerCase().includes(search.value.toLowerCase()))
+    )
+)
 
 </script>
 <style scoped>

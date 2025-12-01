@@ -24,6 +24,16 @@ export function listCategory(params = {}) {
     });
 }
 
+export function getCategoryByKey(key) {
+  return service
+    .get(`/${prefix}/${key}`) 
+    .then((res) => res)
+    .catch((err) => {
+      console.error("Lỗi lấy chi tiết category:", err);
+      throw err;
+    }); 
+}
+
 export function addCategory(data) {
   return service
     .post(`/${prefix}`, data)

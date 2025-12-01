@@ -12,7 +12,7 @@
         </div>
 
         <div class="container-item">
-            <el-table v-loading="loading" :data="filteredList" @row-click="(row) => edit(row.id)" style="width: 100%">
+            <el-table v-loading="loading" :data="filteredList" style="width: 100%">
                 <el-table-column label="STT" width="60">
                     <template #default="scope">
                         {{ scope.$index + 1 }}

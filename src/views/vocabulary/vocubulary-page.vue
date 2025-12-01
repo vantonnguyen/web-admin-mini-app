@@ -108,8 +108,6 @@ const submitForm = ref({
     title: "",
     id: null,
     open: false,
-    mode: 'add',
-    form: null,
 });
 
 provide("submitForm", submitForm);
