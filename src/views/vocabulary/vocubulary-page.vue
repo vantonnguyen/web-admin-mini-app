@@ -18,7 +18,7 @@
         </div>
 
         <div class="container-item">
-            <el-table v-loading="loading" :data="filterTableData" @row-click="(row) => openEdit(undefined, row)"
+            <el-table v-loading="loading" :data="filterTableData" @row-click="(row) => openEdit(row.$index, row)"
                 style="width: 100%">
                 <el-table-column label="STT" width="60">
                     <template #default="scope">
@@ -82,8 +82,7 @@
                 @size-change="fetchVocabularies" />
         </div>
     </div>
-    <DialogCreateOrEditVocabulary v-model:dialogVisible="dialogVisible" :form="form"  :mode="mode"
-        :form-loading="formLoading" @onSuccess="handleGetVocabulary" />
+    <!-- <DialogCreateOrEditVocabulary ref="dialogForSubmit" @onSuccess="handleGetVocabulary" /> -->
 </template>
 
 <script lang="ts" setup>
@@ -98,27 +97,13 @@ import DialogCreateOrEditVocabulary from '@/views/vocabulary/dialog-create-or-ed
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 
-
-interface Vocabulary {
-    id: number;
-    kanji: string;
-    kana: string;
-    romaji: string;
-    meaning: string;
-    jlpt_level?: string | null;
-    audio_url?: string;
-    example?: string;
-    image_url?: string;
-    category_key: string;
-    [key: string]: any;
-}
-
-const vocabularies = ref<Vocabulary[]>([]);
+const vocabularies = ref([]);
 const search = ref('')
 const loading = ref(true)
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
+const dialogForSubmit = ref(false);
 
 onMounted(() => {
     fetchVocabularies();
@@ -130,18 +115,7 @@ function fetchVocabularies() {
         .then((res) => {
             console.log('Vocabularies fetched:', res.data);
             if (res && Array.isArray(res.data)) {
-                vocabularies.value = res.data.map((item: any) => ({
-                    id: item.id,
-                    kanji: item.kanji,
-                    kana: item.kana,
-                    romaji: item.romaji,
-                    meaning: item.meaning,
-                    jlpt_level: item.jlpt_level,
-                    audio_url: item.audio_url,
-                    example: item.example,
-                    image_url: item.image_url,
-                    category_key: item.category_key,
-                }));
+                vocabularies.value = res.data.map(item => ({ ...item}));
                 total.value = res.total || 0;
             } else {
                 console.error('Invalid response format for vocabularies:', res);
@@ -155,68 +129,18 @@ function fetchVocabularies() {
         })
 }
 
-const filterTableData = computed(() =>
-    vocabularies.value.filter(
-        (data) =>
-            !search.value ||
-            (data.kanji && data.kanji.toLowerCase().includes(search.value.toLowerCase())) ||
-            (data.kana && data.kana.toLowerCase().includes(search.value.toLowerCase())) ||
-            (data.romaji && data.romaji.toLowerCase().includes(search.value.toLowerCase())) ||
-            (data.meaning && data.meaning.toLowerCase().includes(search.value.toLowerCase()))
-    )
-);
-
-const form = ref({
-    id: '',
-    kanji: '',
-    kana: '',
-    romaji: '',
-    meaning: '',
-    jlpt_level: '',
-    audio_url: '',
-    example: '',
-    image_url: '',
-    category_key: '',
-});
-
-const mode = ref<'add' | 'update'>('add');
-
-const formLoading = ref(false);
-const handleGetVocabulary = (formData) => {
-    console.log('Form submitted with data:', formData);
-    formLoading.value = true;
+const handleGetVocabulary = () => {
     fetchVocabularies();
-    dialogVisible.value = false;
-    formLoading.value = false;
 };
 
 const dialogVisible = ref(false);
-const openAdd = () => {
-    console.log('Open dialog to create or edit vocabulary');
-    form.value = {
-        id: '',
-        kanji: '',
-        kana: '',
-        romaji: '',
-        meaning: '',
-        jlpt_level: '',
-        audio_url: '',
-        example: '',
-        image_url: '',
-        category_key: '',
-    };
-    mode.value = 'add';
-    dialogVisible.value = true;
+const openAdd = () => { 
 }
 
-const openEdit = (index: number, row: Vocabulary) => {
-    console.log(index, row)
-    Object.assign(form.value, row);
-    mode.value = 'update';
-    dialogVisible.value = true;
+const openEdit = (index: number, row) => {
 }
 
-const handleDelete = (index: number, row: Vocabulary) => {
+const handleDelete = (index: number, row) => {
     console.log(index, row);
     ElMessageBox.confirm(
         `Bạn có chắc chắn muốn xóa từ vựng "${row.kanji}" không?`,
@@ -243,6 +167,18 @@ const handleDelete = (index: number, row: Vocabulary) => {
         ElMessage.info('Đã hủy xóa');
     });
 };
+
+const filterTableData = computed(() =>
+    vocabularies.value.filter(
+        (data) =>
+            !search.value ||
+            (data.kanji && data.kanji.toLowerCase().includes(search.value.toLowerCase())) ||
+            (data.kana && data.kana.toLowerCase().includes(search.value.toLowerCase())) ||
+            (data.romaji && data.romaji.toLowerCase().includes(search.value.toLowerCase())) ||
+            (data.meaning && data.meaning.toLowerCase().includes(search.value.toLowerCase()))
+    )
+);
+
 </script>
 <style scoped>
 .container {
