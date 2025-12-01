@@ -1,7 +1,7 @@
 <template>
     <div class="nav-bar">
         <headerButton :image="cate" label="" :size="58" @click="goLoginPage()" />
-        <headerButton :image="voca" label="" :size="58" @click="goHome()" />
+        <headerButton :image="voca" label="" :size="58" @click="goLogoutPage()" />
         <headerButton :image="user" label="" :size="58" @click="goHome()" />
     </div>
 
@@ -18,6 +18,10 @@ const router = useRouter();
 function goLoginPage() {
     router.push('/login');
 }
+const goLogoutPage = () => {
+    router.push('/logout');
+};
+
 </script>
 <style scoped>
 .nav-bar {

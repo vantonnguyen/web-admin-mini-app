@@ -39,7 +39,7 @@
     </el-dialog>
 </template>
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, nextTick } from 'vue';
 import { ElMessage } from 'element-plus';
 import { addCategory, updateCategory } from '@/api/category.js';
 

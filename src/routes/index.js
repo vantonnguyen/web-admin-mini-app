@@ -4,6 +4,7 @@ import Home from "@/views/home/home.vue";
 import LoginPage from "@/views/login/login-page.vue";
 import CategoryPage from "@/views/category/category-page.vue";
 import VocubularyPage from "@/views/vocabulary/vocubulary-page.vue";
+import { check } from "@/api/auth";
 
 const routes = [
   {
@@ -44,14 +45,26 @@ const router = createRouter({
   routes,
 });
 
-// Navigation guard kiểm tra quyền admin
 router.beforeEach((to, from, next) => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  if (to.path !== '/login' && (!user || user.role !== 'admin')) {
-    next('/login'); // Nếu không phải admin, chuyển về trang login
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (to.path !== "/login" && (!user || user.role !== "admin")) {
+    next("/login");
   } else {
-    next(); // Nếu là admin hoặc đang ở trang login, cho phép truy cập
+    next();
   }
+});
+
+window.addEventListener("load", () => {
+  check()
+    .then((res) => {
+      if (res) {
+      } else {
+        localStorage.removeItem("user");
+      }
+    })
+    .catch(() => {
+      localStorage.removeItem("user");
+    });
 });
 
 export default router;
