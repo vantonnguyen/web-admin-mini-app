@@ -8,6 +8,7 @@
                 <el-input v-model="search" size="small" placeholder="Tìm kiếm" style="width: 180px; height: 30px;"
                     clearable>
                 </el-input>
+        
                 <div style="width: 40px;"></div>
                 <el-button type="primary" icon="el-icon-plus" @click="openAdd">
                     <el-icon>
@@ -245,7 +246,6 @@ const handleDelete = (index: number, row: Category) => {
         ElMessage.info('Đã hủy xóa');
     });
 };
-
 
 </script>
 <style scoped>

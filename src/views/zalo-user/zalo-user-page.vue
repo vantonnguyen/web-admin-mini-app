@@ -2,73 +2,46 @@
     <div class="container">
         <div class="title">
             <div>
-                <h2>Danh sách từ vựng</h2>
+                <h2>Danh sách người dùng zalo mini app</h2>
             </div>
             <div class="toolbar">
-                <el-input v-model="search" size="small" placeholder="Tìm kiếm" style="width: 180px; height: 30px;"
-                    clearable>
+                <el-input class="search-input" v-model="search" size="small" placeholder="Tìm kiếm"
+                    style="width: 180px;" clearable>
                 </el-input>
-                <div style="width: 40px;"></div>
-                <el-button type="primary" icon="el-icon-plus" @click="add">
-                    <el-icon>
-                        <Plus />
-                    </el-icon> Thêm mới
-                </el-button>
             </div>
         </div>
 
         <div class="container-item">
-            <el-table v-loading="loading" :data="filterTableData" @row-click="(row) => edit(row.id)"
-                style="width: 100%">
+            <el-table v-loading="loading" :data="filteredList" @row-click="(row) => edit(row.id)" style="width: 100%">
                 <el-table-column label="STT" width="60">
                     <template #default="scope">
                         {{ scope.$index + 1 }}
                     </template>
                 </el-table-column>
-                <el-table-column label="Kanji">
+                <el-table-column label="Mã Zalo">
                     <template #default="scope">
-                        {{ scope.row.kanji }}
+                        {{ scope.row.zalo_id }}
                     </template>
                 </el-table-column>
-
-                <el-table-column label="Kana">
+                <el-table-column label="Họ và tên">
                     <template #default="scope">
-                        {{ scope.row.kana }}
+                        {{ scope.row.name }}
                     </template>
                 </el-table-column>
-
-                <el-table-column label="Romaji">
+                <el-table-column label="Số điện thoại">
                     <template #default="scope">
-                        {{ scope.row.romaji }}
+                        {{ scope.row.phone_number?.replace(/^84/, '0') }}
                     </template>
                 </el-table-column>
-
-                <el-table-column label="Nghĩa">
+                <el-table-column label="Ảnh đại diện">
                     <template #default="scope">
-                        {{ scope.row.meaning }}
-                    </template>
-                </el-table-column>
-                <el-table-column label="Audio">
-                    <template #default="scope">
-                        <audio :src="scope.row.audio_url" controls
-                            style="width: 110px; height: 28px; transform: scale(0.85); transform-origin: left;"></audio>
-                    </template>
-                </el-table-column>
-
-                <el-table-column label="Ví dụ">
-                    <template #default="scope">
-                        {{ scope.row.example }}
-                    </template>
-                </el-table-column>
-                <el-table-column label="Image">
-                    <template #default="scope">
-                        <img :src="scope.row.image_url" alt="image"
+                        <img :src="scope.row.avatar_url" alt="image"
                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" />
                     </template>
                 </el-table-column>
                 <el-table-column align="right" label="Thao tác">
                     <template #default="scope">
-                        <el-button type="primary" :icon="Edit" @click.stop="edit(scope.row.id)"></el-button>
+                        <!-- <el-button type="primary" :icon="Edit" @click.stop="edit(scope.row.id)"></el-button> -->
                         <el-button type="danger" :icon="Delete" circle
                             @click.stop="handleDelete(scope.$index, scope.row)" />
                     </template>
@@ -77,27 +50,24 @@
         </div>
         <div class="pagination">
             <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :total="total"
-                layout="total, prev, pager, next, sizes" @current-change="fetchVocabularies"
-                @size-change="fetchVocabularies" />
+                layout="total, prev, pager, next, sizes" @current-change="getList" @size-change="getList" />
         </div>
     </div>
-    <DialogCreateOrEditVocabulary ref="dialogForSubmit" @on-success="handleGetVocabulary" />
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, provide } from 'vue'
-import { listVocabulary, deleteVocabulary } from '@/api/vocabulary.js';
 import {
     Delete,
     Edit,
     Search,
 } from '@element-plus/icons-vue'
-import DialogCreateOrEditVocabulary from '@/views/vocabulary/dialog-create-or-edit-vocabulary.vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Plus } from '@element-plus/icons-vue';
+import { listZaloUsers, deleteZaloUser } from '@/api/zalo-user';
 
-const vocabularies = ref([]);
-const search = ref('')
+const listData = ref([])
+const userZalo = ref([]);
+const search = ref('');
 const loading = ref(true)
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -114,19 +84,19 @@ const submitForm = ref({
 
 provide("submitForm", submitForm);
 
-function fetchVocabularies() {
-    listVocabulary({ page: currentPage.value, pageSize: pageSize.value })
+function getList() {
+    listZaloUsers({ page: currentPage.value, pageSize: pageSize.value })
         .then((res) => {
-            console.log('Vocabularies fetched:', res.data);
+            console.log('Zalo users fetched:', res.data);
             if (res && Array.isArray(res.data)) {
-                vocabularies.value = res.data.map(item => ({ ...item }));
+                listData.value = res.data.map(item => ({ ...item }));
                 total.value = res.total || 0;
             } else {
-                console.error('Invalid response format for vocabularies:', res);
+                console.error('Invalid response format for zalo users:', res);
             }
         })
         .catch((error) => {
-            console.error('Error fetching vocabularies:', error);
+            console.error('Error fetching zalo users:', error);
         })
         .finally(() => {
             loading.value = false;
@@ -134,12 +104,9 @@ function fetchVocabularies() {
 }
 
 const handleGetVocabulary = () => {
-    fetchVocabularies();
+    getList();
 };
 
-const add = () => {
-    dialogForSubmit.value.showDialog(null);
-}
 
 const edit = (id) => {
     dialogForSubmit.value.showDialog(id);
@@ -148,7 +115,7 @@ const edit = (id) => {
 const handleDelete = (index: number, row) => {
     console.log(index, row);
     ElMessageBox.confirm(
-        `Bạn có chắc chắn muốn xóa từ vựng "${row.kanji}" không?`,
+        `Bạn có chắc chắn muốn xóa người dùng "${row.name}" không?`,
         'Xác nhận xóa',
         {
             confirmButtonText: 'Xóa',
@@ -156,14 +123,14 @@ const handleDelete = (index: number, row) => {
             type: 'warning',
         }
     ).then(() => {
-        deleteVocabulary(row.id)
+        deleteZaloUser(row.id)
             .then(() => {
-                console.log('Vocabulary deleted:', row.id);
-                fetchVocabularies();
+                console.log('Zalo user deleted:', row.id);
+                getList();
                 ElMessage.success('Đã xóa thành công!');
             })
             .catch((error) => {
-                console.error('Error deleting vocabulary:', error);
+                console.error('Error deleting zalo user:', error);
                 ElMessage.error('Xóa thất bại!');
             });
     }
@@ -174,20 +141,28 @@ const handleDelete = (index: number, row) => {
 };
 
 onMounted(() => {
-    fetchVocabularies();
+    getList();
     loading.value = false;
 });
 
-const filterTableData = computed(() =>
-    vocabularies.value.filter(
-        (data) =>
-            !search.value ||
-            (data.kanji && data.kanji.toLowerCase().includes(search.value.toLowerCase())) ||
-            (data.kana && data.kana.toLowerCase().includes(search.value.toLowerCase())) ||
-            (data.romaji && data.romaji.toLowerCase().includes(search.value.toLowerCase())) ||
-            (data.meaning && data.meaning.toLowerCase().includes(search.value.toLowerCase()))
-    )
-);
+const filteredList = computed(() => {
+    const q = (search.value || '').toString().trim().toLowerCase();
+    if (!q) return listData.value;
+    return listData.value.filter((row) => {
+        const zaloId = (row.zalo_id || '').toString().toLowerCase();
+        const name = (row.name || '').toString().toLowerCase();
+        const phoneRaw = (row.phone_number || '').toString();
+        const phoneNorm = phoneRaw.replace(/^84/, '0').toLowerCase();
+        return (
+            zaloId.includes(q) ||
+            name.includes(q) ||
+            phoneRaw.toLowerCase().includes(q) ||
+            phoneNorm.includes(q)
+        );
+    });
+});
+
+
 
 </script>
 <style scoped>
@@ -217,7 +192,29 @@ const filterTableData = computed(() =>
 .toolbar {
     display: flex;
     align-items: center;
-    gap: 10px;
+}
+
+/* Make the input inner element and button share the same height and sit close */
+.search-input ::v-deep .el-input__inner {
+    height: 30px;
+    line-height: 33px;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    box-sizing: border-box;
+    border-radius: 20px;
+}
+
+.search-button ::v-deep .el-button,
+.search-button .el-button,
+.search-button {
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.search-button .el-icon {
+    margin-right: 6px;
 }
 
 .pagination {

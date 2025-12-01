@@ -4,6 +4,7 @@ import Home from "@/views/home/home.vue";
 import LoginPage from "@/views/login/login-page.vue";
 import CategoryPage from "@/views/category/category-page.vue";
 import VocubularyPage from "@/views/vocabulary/vocubulary-page.vue";
+import zaloUserPage from "@/views/zalo-user/zalo-user-page.vue";
 import { check } from "@/api/auth";
 
 const routes = [
@@ -27,9 +28,9 @@ const routes = [
         component: VocubularyPage,
       },
       {
-        path: "",
-        name: "Home",
-        component: Home,
+        path: "/zalo-users",
+        name: "Zalo User Page",
+        component: zaloUserPage,
       },
     ],
   },

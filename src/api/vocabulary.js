@@ -24,6 +24,16 @@ export function listVocabulary(params = {}) {
     });
 }
 
+export function getVocabularyById(id) {
+  return service
+    .get(`/${prefix}/${id}`)
+    .then((res) => res)
+    .catch((err) => {
+      console.error("Lỗi lấy thông tin vocabulary:", err);
+      throw err;
+    });
+}
+
 export function addVocabulary(data) {
   return service
     .post(`/${prefix}`, data)

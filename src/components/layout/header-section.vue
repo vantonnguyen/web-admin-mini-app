@@ -3,7 +3,7 @@
         <headerButton image="/logo.png" label="" :size="50" @click="goHome()" class="logo" />
         <headerButton :image="cate" label="Chủ đề từ vựng" :size="20" @click="goCategoryPage()" />
         <headerButton :image="voca" label="Danh sách từ vựng" :size="20" @click="goVocabularyPage()" />
-        <headerButton :image="user" label="Quản lý người dùng" :size="20" @click="goHome()" />
+        <headerButton :image="user" label="Quản lý người dùng" :size="20" @click="goZaloUserPage()" />
     </div>
 
 </template>
@@ -24,6 +24,9 @@ function goCategoryPage() {
 }
 function goVocabularyPage() {
     router.push('/vocabularies');
+}
+function goZaloUserPage() {
+    router.push('/zalo-users');
 }
 </script>
 <style scoped>
