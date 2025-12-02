@@ -19,7 +19,7 @@
         </div>
 
         <div class="container-item">
-            <el-table v-loading="loading" :data="filteredList"  @row-click="(row) => edit(row.key)"
+            <el-table v-loading="loading" :data="filterTableData"  @row-click="(row) => edit(row.key)"
                 style="width: 100%">
                 <el-table-column label="STT" width="60">
                     <template #default="scope">
@@ -175,7 +175,7 @@ const handleDelete = (index: number, row) => {
     });
 };
 
-const filteredList = computed(() =>
+const filterTableData = computed(() =>
     listData.value.filter(
         (data) =>
             !search.value ||

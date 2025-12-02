@@ -96,7 +96,7 @@ import DialogCreateOrEditVocabulary from '@/views/vocabulary/dialog-create-or-ed
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 
-const vocabularies = ref([]);
+const listData = ref([]);
 const search = ref('')
 const loading = ref(true)
 const currentPage = ref(1);
@@ -117,7 +117,7 @@ function fetchVocabularies() {
         .then((res) => {
             console.log('Vocabularies fetched:', res.data);
             if (res && Array.isArray(res.data)) {
-                vocabularies.value = res.data.map(item => ({ ...item }));
+                listData.value = res.data.map(item => ({ ...item }));
                 total.value = res.total || 0;
             } else {
                 console.error('Invalid response format for vocabularies:', res);
@@ -177,7 +177,7 @@ onMounted(() => {
 });
 
 const filterTableData = computed(() =>
-    vocabularies.value.filter(
+    listData.value.filter(
         (data) =>
             !search.value ||
             (data.kanji && data.kanji.toLowerCase().includes(search.value.toLowerCase())) ||

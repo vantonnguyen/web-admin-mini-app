@@ -12,7 +12,7 @@
         </div>
 
         <div class="container-item">
-            <el-table v-loading="loading" :data="filteredList" style="width: 100%">
+            <el-table v-loading="loading" :data="filterTableData" style="width: 100%">
                 <el-table-column label="STT" width="60">
                     <template #default="scope">
                         {{ scope.$index + 1 }}
@@ -145,7 +145,7 @@ onMounted(() => {
     loading.value = false;
 });
 
-const filteredList = computed(() => {
+const filterTableData = computed(() => {
     const q = (search.value || '').toString().trim().toLowerCase();
     if (!q) return listData.value;
     return listData.value.filter((row) => {
