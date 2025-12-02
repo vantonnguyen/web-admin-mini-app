@@ -66,6 +66,11 @@
                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" />
                     </template>
                 </el-table-column>
+                <el-table-column label="Danh mục">
+                    <template #default="scope">
+                        {{ getCategoryLabel(scope.row.category_key) }}
+                    </template>
+                </el-table-column>
                 <el-table-column align="right" label="Thao tác">
                     <template #default="scope">
                         <el-button type="primary" :icon="Edit" @click.stop="edit(scope.row.id)"></el-button>
@@ -87,6 +92,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, provide } from 'vue'
 import { listVocabulary, deleteVocabulary } from '@/api/vocabulary.js';
+import { listCategory } from '@/api/category.js';
 import {
     Delete,
     Edit,
@@ -103,6 +109,9 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
 const dialogForSubmit = ref(null);
+
+const categories = ref([]);
+const categoryMap = ref({} as Record<string, string>);
 
 const submitForm = ref({
     title: "",
@@ -129,6 +138,26 @@ function fetchVocabularies() {
         .finally(() => {
             loading.value = false;
         })
+}
+
+function fetchCategories() {
+    listCategory({ page: 1, pageSize: 1000 })
+        .then((res) => {
+            if (res && Array.isArray(res.data)) {
+                categories.value = res.data;
+                const map: Record<string, string> = {};
+                res.data.forEach((c) => {
+                    // common field names: name, title, label, key
+                    map[c.key ?? c.id ?? c._id ?? c.slug] = c.name ?? c.title ?? c.label ?? c.key ?? c.id;
+                });
+                categoryMap.value = map;
+            } else {
+                console.error('Invalid response format for categories:', res);
+            }
+        })
+        .catch((err) => {
+            console.error('Error fetching categories:', err);
+        });
 }
 
 const handleGetVocabulary = () => {
@@ -172,9 +201,15 @@ const handleDelete = (index: number, row) => {
 };
 
 onMounted(() => {
+    fetchCategories();
     fetchVocabularies();
     loading.value = false;
 });
+
+const getCategoryLabel = (key: string) => {
+    if (!key) return '';
+    return categoryMap.value[key] ?? key;
+};
 
 const filterTableData = computed(() =>
     listData.value.filter(

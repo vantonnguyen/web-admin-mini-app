@@ -33,6 +33,12 @@
                 <img :src="formData.image_url" alt="preview"
                     style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;" />
             </div>
+            <el-form-item label="Danh mục" prop="category_key">
+                <el-select v-model="formData.category_key" placeholder="Chọn danh mục" style="width: 240px;">
+                    <el-option v-for="category in categories" :key="category.key" :label="category.label"
+                        :value="category.key" />
+                </el-select>
+            </el-form-item>
         </el-form>
         <template #footer>
             <span class="dialog-footer">
@@ -47,12 +53,15 @@
 import { reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { addVocabulary, updateVocabulary, getVocabularyById } from '@/api/vocabulary.js';
+import { listCategory } from '@/api/category.js';
+
 
 const dialogVisible = ref(false);
 const emit = defineEmits(['on-success']);
 const myForm = ref();
 const formLoading = ref(false);
 const loading = ref(false);
+const categories = ref([]);
 const defaultFormValue = reactive({
     id: null,
     kanji: '',
@@ -61,7 +70,8 @@ const defaultFormValue = reactive({
     meaning: '',
     audio_url: '',
     example: '',
-    image_url: ''
+    image_url: '',
+    category_key: '',
 });
 const formData = ref({ ...defaultFormValue });
 
@@ -73,6 +83,7 @@ const showDialog = (id) => {
     formLoading.value = false;
     dialogVisible.value = true;
     formData.value = { ...defaultFormValue };
+    fetchCategories();
     //edit
     if (id) {
         loading.value = true;
@@ -129,6 +140,19 @@ const submitForm = async () => {
     });
 };
 
+const fetchCategories = () => {
+        listCategory({ page: 1, pageSize: 1000 })
+        .then((res) => {
+            if (Array.isArray(res.data)) {
+                categories.value = res.data;
+            } else {
+                console.error('Invalid response format for categories:', res);
+            }
+        })
+        .catch((err) => {
+            console.error('Error fetching categories:', err);
+        });
+}
 
 const rules = reactive({
     kanji: [{ required: false, message: 'Vui lòng nhập Kanji (có thể có hoặc không)', trigger: 'blur' }],
